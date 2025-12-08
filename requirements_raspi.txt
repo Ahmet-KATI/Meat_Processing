@@ -1,0 +1,16 @@
+# Raspberry Pi için hafif versiyonlar
+# TensorFlow Lite - Sadece inference için
+tensorflow-lite-runtime==2.13.0
+
+# Görüntü İşleme - Headless (GUI olmadan)
+opencv-python-headless==4.8.1.78
+pillow==10.0.0
+
+# Veri İşleme
+numpy==1.24.3
+
+# Raspberry Pi Kamera
+picamera2
+
+# Not: Raspberry Pi OS'de bazı sistem paketleri gerekebilir:
+# sudo apt-get install python3-opencv python3-numpy python3-picamera2
