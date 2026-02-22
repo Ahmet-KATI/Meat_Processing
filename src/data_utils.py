@@ -116,8 +116,8 @@ class MeatDataset:
             # Yeniden boyutlandır
             img = cv2.resize(img, self.img_size)
             
-            # 0-1 aralığına normalize et
-            img = img.astype(np.float32) / 255.0
+            # 0-1 aralığına normalize et (ARTIK MODEL İÇİNDE YAPILIYOR)
+            img = img.astype(np.float32)
             
             return img
             
@@ -229,8 +229,8 @@ def create_tf_dataset(X, y, batch_size=16, augment=False):
             image = tf.image.random_brightness(image, max_delta=0.2)
             # Random contrast
             image = tf.image.random_contrast(image, lower=0.8, upper=1.2)
-            # Clip to [0, 1]
-            image = tf.clip_by_value(image, 0.0, 1.0)
+            # Clip to [0, 255]
+            image = tf.clip_by_value(image, 0.0, 255.0)
             return image, label
         
         dataset = dataset.map(augment_fn, num_parallel_calls=tf.data.AUTOTUNE)

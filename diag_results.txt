@@ -1,0 +1,5 @@
+--- Diagnostic Results ---
+Fresh 1: Score = 0.1958 (fresh)
+Fresh 100: Score = 0.0009 (fresh)
+Rotten 1: Score = 0.9994 (spoiled)
+Rotten 1640: Score = 1.0000 (spoiled)

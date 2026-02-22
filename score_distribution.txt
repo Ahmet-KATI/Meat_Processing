@@ -1,0 +1,6 @@
+Distribution of 3268 images:
+Ranges: Fresh: 1635, Medium: 1, Spoiled: 1632
+Intermediate scores (0.1 to 0.9 range count): 3
+
+Samples:
+spoiled\Rotten (1744).jpg: 0.5083

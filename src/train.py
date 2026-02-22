@@ -16,6 +16,9 @@ from datetime import datetime
 from data_utils import MeatDataset, create_tf_dataset
 from model import create_meat_freshness_model, compile_model, get_model_summary
 
+# Absolute path helper
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+
 
 def plot_training_history(history, save_path='outputs/plots/training_history.png'):
     """
@@ -70,7 +73,7 @@ def plot_training_history(history, save_path='outputs/plots/training_history.png
     # Kaydet
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     plt.savefig(save_path, dpi=300, bbox_inches='tight')
-    print(f"✓ Eğitim grafiği kaydedildi: {save_path}")
+    print(f"Egitim grafigi kaydedildi: {save_path}")
 
 
 def save_training_report(history, model_params, save_path='outputs/reports/training_report.txt'):
@@ -163,7 +166,7 @@ def train_model(csv_path='data/raw/labels.csv',
                 learning_rate=0.001,
                 test_size=0.2,
                 use_augmentation=True,
-                model_save_path='models/model.h5'):
+                model_save_path=None):
     """
     Ana eğitim fonksiyonu.
     
@@ -175,14 +178,19 @@ def train_model(csv_path='data/raw/labels.csv',
         learning_rate (float): Öğrenme oranı
         test_size (float): Validation oranı
         use_augmentation (bool): Veri artırma kullan
+        model_save_path (str): Model kayıt yolu
     """
+    if model_save_path is None:
+        model_save_path = os.path.join(BASE_DIR, 'outputs', 'models', 'model.h5')
+    else:
+        model_save_path = os.path.abspath(model_save_path)
     
     print("\n" + "=" * 80)
-    print("🚀 MODEL EĞİTİMİ BAŞLIYOR")
+    print("MODEL EGITIMI BASLIYOR")
     print("=" * 80 + "\n")
     
-    # ============= 1. VERİ YÜKLEME =============
-    print("📂 ADIM 1: Veri Yükleme")
+    # ============= 1. VERI YUKLEME =============
+    print("ADIM 1: Veri Yukleme")
     print("-" * 80)
     
     dataset = MeatDataset(data_dir=data_dir, img_size=(224, 224))
@@ -195,8 +203,8 @@ def train_model(csv_path='data/raw/labels.csv',
         image_paths, scores, test_size=test_size
     )
     
-    # ============= 2. MODEL OLUŞTURMA =============
-    print("\n🏗️ ADIM 2: Model Oluşturma")
+    # ============= 2. MODEL OLUSTURMA =============
+    print("\nADIM 2: Model Olusturma")
     print("-" * 80)
     
     model = create_meat_freshness_model(input_shape=(224, 224, 3))
@@ -209,7 +217,7 @@ def train_model(csv_path='data/raw/labels.csv',
     model_params['augmentation'] = use_augmentation
     
     # ============= 3. CALLBACKS =============
-    print("\n⚙️ ADIM 3: Callbacks Ayarlama")
+    print("\nADIM 3: Callbacks Ayarlama")
     print("-" * 80)
     
     callbacks = []
@@ -228,7 +236,7 @@ def train_model(csv_path='data/raw/labels.csv',
         verbose=1
     )
     callbacks.append(checkpoint)
-    print(f"✓ ModelCheckpoint: {checkpoint_path}")
+    print(f"ModelCheckpoint: {checkpoint_path}")
     
     # Early stopping - overfitting önleme
     early_stop = keras.callbacks.EarlyStopping(
@@ -238,7 +246,7 @@ def train_model(csv_path='data/raw/labels.csv',
         verbose=1
     )
     callbacks.append(early_stop)
-    print("✓ EarlyStopping: patience=10")
+    print("EarlyStopping: patience=10")
     
     # Reduce learning rate on plateau
     reduce_lr = keras.callbacks.ReduceLROnPlateau(
@@ -249,7 +257,14 @@ def train_model(csv_path='data/raw/labels.csv',
         verbose=1
     )
     callbacks.append(reduce_lr)
-    print("✓ ReduceLROnPlateau: factor=0.5, patience=5")
+    print("ReduceLROnPlateau: factor=0.5, patience=5")
+    
+    # CSV Logger - Her epoch sonunda sonuçları kaydet (Kaza olsa bile veri kalsın)
+    history_file = os.path.join(BASE_DIR, 'outputs', 'reports', 'training_history.csv')
+    os.makedirs(os.path.dirname(history_file), exist_ok=True)
+    csv_logger = keras.callbacks.CSVLogger(history_file, append=False)
+    callbacks.append(csv_logger)
+    print(f"CSVLogger: {history_file}")
     
     # TensorBoard - Devre dışı (Windows encoding sorunu)
     # log_dir = f"outputs/logs/fit_{datetime.now().strftime('%Y%m%d-%H%M%S')}"
@@ -258,8 +273,8 @@ def train_model(csv_path='data/raw/labels.csv',
     # print(f"✓ TensorBoard: {log_dir}")
     print("⚠ TensorBoard devre dışı (encoding sorunu nedeniyle)")
     
-    # ============= 4. EĞİTİM =============
-    print("\n🎯 ADIM 4: Model Eğitimi")
+    # ============= 4. EGITIM =============
+    print("\nADIM 4: Model Egitimi")
     print("-" * 80)
     print(f"Epochs: {epochs}, Batch Size: {batch_size}")
     print(f"Training samples: {len(X_train)}, Validation samples: {len(X_val)}")
@@ -278,34 +293,25 @@ def train_model(csv_path='data/raw/labels.csv',
         verbose=1
     )
     
-    # ============= 5. SONUÇLAR =============
-    print("\n💾 ADIM 5: Modeli Kaydetme")
+    # ============= 5. SONUCLAR =============
+    print("\nADIM 5: Modeli Kaydetme")
     print("-" * 80)
     
     # Keras formatında kaydet
-    # Keras formatında kaydet
     model.save(model_save_path)
     print(f"✓ Keras model kaydedildi: {model_save_path}")
-    
-    # SavedModel formatında kaydet
-    # SavedModel formatında kaydet
-    saved_model_path = os.path.join(model_dir, 'saved_model')
-    # Eski SavedModel klasörünü temizle
-    import shutil
-    if os.path.exists(saved_model_path):
-        shutil.rmtree(saved_model_path)
-    model.save(saved_model_path)
-    print(f"✓ SavedModel kaydedildi: {saved_model_path}")
     
     # TFLite formatına çevir (Raspberry Pi için)
     tflite_path = os.path.splitext(model_save_path)[0] + '.tflite'
     convert_to_tflite(model, save_path=tflite_path)
     
     # Grafikleri kaydet
-    plot_training_history(history)
+    plot_path = os.path.join(BASE_DIR, 'outputs', 'plots', 'training_history.png')
+    plot_training_history(history, save_path=plot_path)
     
     # Rapor kaydet
-    save_training_report(history, model_params)
+    report_path = os.path.join(BASE_DIR, 'outputs', 'reports', 'training_report.txt')
+    save_training_report(history, model_params, save_path=report_path)
     
     print("\n" + "=" * 80)
     print("✅ EĞİTİM TAMAMLANDI!")
@@ -350,5 +356,5 @@ if __name__ == "__main__":
         learning_rate=args.lr,
         test_size=args.test_size,
         use_augmentation=not args.no_augmentation,
-        model_save_path='models/model.h5'  # Default for standalone run
+        model_save_path=None  # Use default absolute path logic
     )

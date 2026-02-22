@@ -1,0 +1,6 @@
+Alpha Blending Proof of Regression (RGB Fixed):
+Alpha 0.00 (Spoiled Ratio): Score = 0.1958
+Alpha 0.25 (Spoiled Ratio): Score = 0.2026
+Alpha 0.50 (Spoiled Ratio): Score = 0.2788
+Alpha 0.75 (Spoiled Ratio): Score = 0.9997
+Alpha 1.00 (Spoiled Ratio): Score = 0.9994

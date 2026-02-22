@@ -1,0 +1,12 @@
+Model Sensitivity Gradient Proof:
+Spoilage Level   0%: Model Score = 0.1958
+Spoilage Level  10%: Model Score = 0.1474
+Spoilage Level  20%: Model Score = 0.1311
+Spoilage Level  30%: Model Score = 0.0958
+Spoilage Level  40%: Model Score = 0.0805
+Spoilage Level  50%: Model Score = 0.0892
+Spoilage Level  60%: Model Score = 0.0870
+Spoilage Level  70%: Model Score = 0.0886
+Spoilage Level  80%: Model Score = 0.0843
+Spoilage Level  90%: Model Score = 0.1063
+Spoilage Level 100%: Model Score = 0.1443

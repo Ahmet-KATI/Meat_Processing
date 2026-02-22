@@ -99,9 +99,8 @@ class FreshnessBar(Canvas):
         """
         self.current_score = max(0.0, min(1.0, score))
         
-        # Önceki indikatörü sil
-        if self.indicator is not None:
-            self.delete(self.indicator)
+        # Önceki indikatör elemanlarını sil
+        self.delete('indicator_element')
         
         # Yeni indikatör pozisyonu
         x_pos = int(self.current_score * self.bar_width)
@@ -112,7 +111,7 @@ class FreshnessBar(Canvas):
         # Dikey çizgi
         self.indicator = self.create_line(
             x_pos, bar_y, x_pos, bar_y + bar_h,
-            fill='black', width=4
+            fill='black', width=4, tags='indicator_element'
         )
         
         # Üstte üçgen ok
@@ -121,7 +120,7 @@ class FreshnessBar(Canvas):
             x_pos, bar_y - 10,
             x_pos - arrow_size, bar_y - 2,
             x_pos + arrow_size, bar_y - 2,
-            fill='black'
+            fill='black', tags='indicator_element'
         )
         
         # Altta üçgen ok
@@ -129,14 +128,13 @@ class FreshnessBar(Canvas):
             x_pos, bar_y + bar_h + 10,
             x_pos - arrow_size, bar_y + bar_h + 2,
             x_pos + arrow_size, bar_y + bar_h + 2,
-            fill='black'
+            fill='black', tags='indicator_element'
         )
     
     def reset(self):
         """İndikatörü sıfırlar."""
-        if self.indicator is not None:
-            self.delete(self.indicator)
-            self.indicator = None
+        self.delete('indicator_element')
+        self.indicator = None
 
 
 class ImagePreview(Canvas):

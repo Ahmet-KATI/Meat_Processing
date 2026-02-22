@@ -85,8 +85,8 @@ def preprocess_image_for_prediction(image_path, img_size=(224, 224)):
     # Yeniden boyutlandır
     img = cv2.resize(img, img_size)
     
-    # Float32 ve normalize
-    img = img.astype(np.float32) / 255.0
+    # Float32    # Normalize et (ARTIK MODEL İÇİNDE YAPILIYOR)
+    img = img.astype(np.float32)
     
     # Batch dimension ekle
     img = np.expand_dims(img, axis=0)
@@ -116,9 +116,22 @@ def predict_freshness(model, image_path, return_category=True):
     # Tahmin
     score = model.predict(img, verbose=0)[0][0]
     
+    # --- KALİBRASYON (YUMUŞATMA) ---
+    # Model sadece 0 ve 1 etiketleriyle eğitildiği için çok "keskin" (overconfident) sonuçlar verir.
+    # Temperature scaling (T > 1) ile bu keskinliği yumuşatarak ara değerleri daha görünür kılıyoruz.
+    temp = 5.0 
+    # Sigmoid'in tersi olan logit üzerinden işlem yapıyoruz:
+    # epsilon ekleyerek log(0) hatasını önlüyoruz
+    eps = 1e-7
+    score = np.clip(score, eps, 1.0 - eps)
+    logit = np.log(score / (1.0 - score))
+    # Logiti yumuşatıp tekrar sigmoid'e sokuyoruz
+    calibrated_score = 1.0 / (1.0 + np.exp(-logit / temp))
+    
     # Sonuç dictionary'si
     result = {
-        'score': float(score)
+        'score': float(calibrated_score),
+        'raw_score': float(score) # Ham skoru da saklayalım
     }
     
     if return_category:
